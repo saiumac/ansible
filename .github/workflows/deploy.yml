@@ -56,6 +56,11 @@ jobs:
           ssh-keyscan -H 54.234.182.112 >> ~/.ssh/known_hosts || true
         shell: bash
 
+      - name: Start SSH Agent and Add Key
+        run: |
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_rsa
+
       - name: Deploy with Ansible
         env:
           ANSIBLE_HOST_KEY_CHECKING: 'False'
