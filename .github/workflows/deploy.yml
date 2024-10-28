@@ -53,7 +53,8 @@ jobs:
 
       - name: Add Host to Known Hosts
         run: |
-          ssh-keyscan -H <ec2-public-ip> >> ~/.ssh/known_hosts || true
+          ssh-keyscan -H <ec2-public-ip> > temp_hosts && cat temp_hosts >> ~/.ssh/known_hosts
+        shell: bash
 
       - name: Deploy with Ansible
         env:
