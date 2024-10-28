@@ -1,0 +1,48 @@
+- name: Deploy Node.js App to EC2 using YUM
+  hosts: web
+  become: yes
+
+  tasks:
+    - name: Add NodeSource repository for Node.js 14.x
+      ansible.builtin.yum_repository:
+        name: nodesource
+        description: Node.js Packages for Enterprise Linux 7 - $basearch
+        baseurl: https://rpm.nodesource.com/pub_14.x/el/7/$basearch
+        enabled: yes
+        gpgcheck: yes
+        gpgkey: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
+
+    - name: Install Node.js
+      ansible.builtin.yum:
+        name: nodejs
+        state: present
+
+    - name: Create application directory
+      ansible.builtin.file:
+        path: /home/ec2-user/app
+        state: directory
+        mode: '0755'
+
+    - name: Copy application files to the server
+      ansible.builtin.copy:
+        src: ./app/
+        dest: /home/ec2-user/app/
+        mode: '0755'
+
+    - name: Install npm dependencies
+      ansible.builtin.command:
+        cmd: npm install
+        chdir: /home/ec2-user/app/
+
+    - name: Start Node.js application in background
+      ansible.builtin.shell: |
+        nohup npm start > /home/ec2-user/app/output.log 2>&1 &
+      args:
+        chdir: /home/ec2-user/app/
+
+    - name: Wait for the application to be running
+      ansible.builtin.wait_for:
+        port: 3000
+        delay: 5
+        timeout: 30
+        state: started

@@ -1,0 +1,29 @@
+- name: CI/CD Deployment of Node.js App
+  hosts: web
+  become: yes
+
+  tasks:
+    - name: Pull latest code from GitHub (optional)
+      ansible.builtin.git:
+        repo: 'https://github.com/yourusername/your-repo.git'
+        dest: /home/ec2-user/app
+        version: HEAD
+
+    - name: Install npm dependencies
+      ansible.builtin.command:
+        cmd: npm install
+        chdir: /home/ec2-user/app/
+
+    - name: Restart Node.js application
+      ansible.builtin.shell: |
+        pkill -f node || true
+        nohup npm start > /home/ec2-user/app/output.log 2>&1 &
+      args:
+        chdir: /home/ec2-user/app/
+
+    - name: Wait for the application to be running
+      ansible.builtin.wait_for:
+        port: 3000
+        delay: 5
+        timeout: 30
+        state: started
