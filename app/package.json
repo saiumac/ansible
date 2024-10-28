@@ -5,7 +5,8 @@
   "main": "app.js",
   "dependencies": {},
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "test": "echo \"No test specified\" && exit 0"
   },
   "author": "Ansible Beginner",
   "license": "ISC"
