@@ -3,8 +3,8 @@ name: CI/CD Pipeline for Node.js App
 on:
   push:
     branches:
-      - main  # Trigger on changes to the main branch
-  pull_request:   # Trigger on pull requests
+      - main
+  pull_request:
 
 jobs:
   build:
@@ -14,16 +14,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '14'
+      - name: Change to app directory
+        run: cd app
 
       - name: Install Dependencies
         run: npm install
+        working-directory: ./app
 
       - name: Run Tests
         run: npm test
+        working-directory: ./app
 
   deploy:
     runs-on: ubuntu-latest
