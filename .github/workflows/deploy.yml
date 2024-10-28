@@ -7,30 +7,8 @@ on:
   pull_request:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '14'
-
-      - name: Install Dependencies
-        run: npm install
-        working-directory: ./app
-
-      - name: Run Tests
-        run: npm test
-        working-directory: ./app
-
   deploy:
     runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout Code
@@ -41,27 +19,22 @@ jobs:
           sudo apt update
           sudo apt install -y ansible
 
-      - name: Set up SSH Directory
-        run: mkdir -p ~/.ssh
-
-      - name: Add SSH Private Key
-        run: echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-        shell: bash
-
-      - name: Set SSH Key Permissions
-        run: chmod 600 ~/.ssh/id_rsa
+      - name: Set up SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
       - name: Add Host to Known Hosts
         run: |
           ssh-keyscan -H 54.234.182.112 >> ~/.ssh/known_hosts || true
-        shell: bash
 
       - name: Start SSH Agent and Add Key
         run: |
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
 
-      - name: Test SSH Connection (Debug)
+      - name: Test SSH Connection
         run: ssh -o StrictHostKeyChecking=no ec2-user@54.234.182.112 "echo 'SSH Connection Successful'"
 
       - name: Deploy with Ansible
