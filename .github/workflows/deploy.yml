@@ -34,10 +34,5 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
 
-      - name: Test SSH Connection
-        run: ssh -o StrictHostKeyChecking=no ec2-user@54.234.182.112 "echo 'SSH Connection Successful'"
-
-      - name: Deploy with Ansible
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: 'False'
-        run: ansible-playbook -i inventory.ini deploy.yml
+      - name: Test SSH Connection with Debugging
+        run: ssh -vvv -o StrictHostKeyChecking=no ec2-user@54.234.182.112 "echo 'SSH Connection Successful'"
